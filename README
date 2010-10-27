@@ -1,0 +1,6 @@
+Assemble an x86_64 boot image for a trading system (multiple screens.)
+
+Uses ATI video driver with sample xorg.conf files.
+
+synergy client, and post-boot transfer of java runtime and trading application
+(Interactive Brokers TWS), retrieved from your tftp or web server.
