@@ -5,7 +5,7 @@ bd=`cat env/bd`
 #output_img=/tftpboot/initrds/finance-server.initrd.img
 #output_img=/mnt/cache/$USER/finance-server.initrd.img
 
-if [ -e "$env/output_img" ]; then
+if [ ! -e "$env/output_img" ]; then
     output_img=`cat ./env/output_img`
 else
     echo "Please specify an output initrd path with file name in ./env/output_img"
