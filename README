@@ -4,3 +4,101 @@ Uses ATI video driver with sample xorg.conf files.
 
 synergy client, and post-boot transfer of java runtime and trading application
 (Interactive Brokers TWS), retrieved from your tftp or web server.
+
+--
+
+Phase I is for the init script to just boot to a /bin/bash prompt
+
+so you can explore the types of network interfaces and video cards that
+
+are present. You would do this with a physically attached keyboard and
+
+run commands like `lspci` and `lspci -v` to see what's up.
+
+--
+
+Phase II has your network drivers loaded and you can ssh into the machine, 
+
+reboot, or shutdown the system remotely.
+
+--
+
+Phase III has your Xorg configuration dialed in and you're ready to run
+
+some applications.
+
+--
+
+So as you can see, if you are dealing with new hardware you will have to
+
+step through carefully from Phase I, potentially spending a lot of time
+
+in Phase I. But as you gain familiarity (and as this software kit improves)
+
+and use identicial or nearly identical hardware for replicating some of
+
+your stations, you'll be able to skip ahead to the other phases when
+
+setting up a machine.
+
+--
+
+PREPARATION
+
+--
+
+create
+
+Start off with enough storage space and then as root run the create script,
+
+to pull in a GNU/Linux system with a base set of libraries. It targets
+
+the directory path specified in the env/bd file and pretty much obliterates
+
+the target, including any custimzations you may have had.
+
+--
+
+inject sshd
+
+The next useful step, is to run the inject-sshd.sh script by first
+
+having your public key file in injections/authorized_keys2
+
+example: cp $HOME/.ssh/id_dsa.pub injections/authorized_keys2
+
+That assumes that you have already run `ssh -keygen -t dsa` or similar
+
+in the personal or service account from which you will be ssh'ing into 
+
+the machine.
+
+--
+
+inject init
+
+The init script is a bit specific to the kernel modules it loads, but
+
+critically the dhclient and sshd server will start if the prior boot phases
+
+have gone well. 
+
+--
+
+inject reboot
+
+--
+
+inject modules
+
+actually, you need this stage to probably load your network driver.
+
+You won't actually ssh in without it.
+
+--
+
+inject xorg
+
+--
+
+Finish by running the remake script to generate in actual initrd.img
