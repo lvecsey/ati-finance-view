@@ -102,3 +102,10 @@ inject xorg
 --
 
 Finish by running the remake script to generate in actual initrd.img
+
+To run it, you need to configure that path and name of the output image.
+
+Put it it env/output_img and then run the script.
+
+A good location might be something like: /srv/tftp/initrds/lucid-ati-finance-view.img
+
