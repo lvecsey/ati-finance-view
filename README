@@ -87,6 +87,16 @@ have gone well.
 
 inject reboot
 
+this is a tiny tcpsvd style script and daemon that will just listen on a TCP
+
+port for any connections on the local network that might give it a reboot
+
+or shutdown command. Useful for a truly minimal system, and as a backup for
+
+getting the hardware under control. But skip this if the sshd approach
+
+makes more sense for you.
+
 --
 
 inject modules
@@ -98,6 +108,10 @@ You won't actually ssh in without it.
 Start by defining the right `uname -r` inside of env/uname_r
 
 If it's the same as your current machine, then just: uname -r > env/uname_r
+
+If the vmlinuz image is more recent (from the $release-image-module/boot directory)
+
+then just specify the uname_r for it instead.
 
 The two modules sky2.ko and r8169.ko are included (the latter is for Realtek)
 
@@ -141,6 +155,8 @@ if you haven't already done so in Phase I. You'll also need your monitor specifi
 
 like horizontal and vertical retrace, and resolution, to tweak a custom xorg config file.
 
+You can even scp in a newly editted xorg.conf, and launch Xorg to try again. (through ssh)
+
 --
 
 Finish by running the remake script to generate in actual initrd.img
@@ -150,4 +166,13 @@ To run it, you need to configure that path and name of the output image.
 Put it it env/output_img and then run the script.
 
 A good location might be something like: /srv/tftp/initrds/lucid-ati-finance-view.img
+
+--
+
+You'll have to iterate on that last step, running the inject-init.sh and inject-xorg.sh
+
+scripts and remaking, until you get it right.
+
+
+
 

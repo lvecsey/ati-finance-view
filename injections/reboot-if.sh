@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Listen on a TCP port and await reboot or shutdown commands.
-# Especially useful on a minimal system lackind even an sshd.
+# Especially useful on a minimal system lacking even an sshd.
 # Or as a backup in case sshd isn't servicing requests.
 #
 # It's a good idea to use nc so you have a clear line feed.
