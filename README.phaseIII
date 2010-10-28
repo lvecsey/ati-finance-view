@@ -1,0 +1,7 @@
+
+You can add application_tftp_server= and also storage_tftp_server= to your kernel command line, to specify the tftp server to use to get your applications and also the tftp server to write to
+(if it's different, otherwise manually set the same address) in case you want certain saved files to be replicated back whenever the application quits and starts up again.
+
+Basically though, you need to edit your Phase III apps to do what you want to do. For this reason it will probably be broken out from the init script at some point, but it's still in there at the
+end for now.
+

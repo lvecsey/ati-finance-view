@@ -95,9 +95,51 @@ actually, you need this stage to probably load your network driver.
 
 You won't actually ssh in without it.
 
+Start by defining the right `uname -r` inside of env/uname_r
+
+If it's the same as your current machine, then just: uname -r > env/uname_r
+
+The two modules sky2.ko and r8169.ko are included (the latter is for Realtek)
+
+but you may have to edit the top of injections/init to load it and manually.
+
+A pletheora of net drivers are inserted with the inject-modules.sh script but
+
+you have an opportunity to do a minimal injection, if you know your configuration.
+
+This saves boot time and runtime memory, and it's just a good overall thing.
+
+You should also define the env/bd file to include the relative path or absotule
+
+path to your modules area, to copy from. Usually /lib/modules if you have
+
+the same system but if you are using a custom image from debootstrap
+
+in the [maverick]-image-module directory (i.e. you are taking a kernel from there)
+
+then use a path such as maverick-image-module/lib/modules for the inject script to
+
+take the version correct files.
+
 --
 
 inject xorg
+
+go into the injections/ directory and copy one of the xorg config files into
+
+a new descriptive filename. then inside env/xorg_conf specify the pathname
+
+to your specific file.
+
+you basically want to set the machine to boot as Phase II and then ssh in to
+
+continue to test the xorg.conf file. 
+
+If you can ssh in you can run lspci again for the video card PCI BusID,
+
+if you haven't already done so in Phase I. You'll also need your monitor specifications
+
+like horizontal and vertical retrace, and resolution, to tweak a custom xorg config file.
 
 --
 

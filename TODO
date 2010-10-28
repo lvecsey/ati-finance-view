@@ -1,0 +1,1 @@
+Confirm that language-pack-en actually gets installed from the create script because it's needed by some Java applications.

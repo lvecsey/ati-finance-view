@@ -1,0 +1,7 @@
+
+Part of the philosophy is to finely tune an initrd image and pxelinux boot combination for your specific instance,
+
+so that at boot time when everything unpacks properly you have been for the most part restored to a known good state.
+
+Certain large applications generally still have to be pulled in post-boot, or they make sense to do then due to updates.
+

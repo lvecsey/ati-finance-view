@@ -1,0 +1,28 @@
+Inside of your pxelinux.cfg/ directory and file for your bootable machine, you want to specify kernel parameters
+
+such as phase=I if you want to limit the boot to just the first phase (it will leave you at a bash prompt, if
+
+successful.)
+
+	phase=I use_interface=eth1 synergy_server=192.168.1.75
+
+if the system contines on to phase=II (if you're at a lower stage just exit the bash prompt to go to the next one)
+
+it'll use DHCP to set up the network on the given interface. Also, you want to use a remote keyboard and mouse
+
+to control everything so just set your synergy_server address as well, which will be useful in phase=III
+
+
+
+--
+
+The rough outline of the boot process is the onboard NIC (through a bios setting) will DHCP network boot and will load
+pxelinux.0 from your tftp server (as specified in dhcpd.conf) which will in turn proceed to tftp request your boot config file
+pxelinux.cfg/mac-address. Usually this is a symlink to your actual file, so you can give it a descriptive name.
+
+Finally, that file will contain the LABEL, KERNEL, and APPEND (which has the kernel command line items, mentioned above
+along with the relative inird= filename path)
+
+The kernel and initrd images will then in turn be tftp requested, by the pxelinux.0 loader.
+
+Finally, it unpacks and boots the kernel, so that the init script can hopefully run.

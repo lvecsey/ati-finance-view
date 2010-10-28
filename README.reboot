@@ -1,0 +1,7 @@
+See the top of the injections/reboot-if.sh script to see how that server can be used.
+
+Basically it sets up a TCP port so you can reboot or shutdown your machine.
+
+Effectively you could do this through ssh as well, since we have already gone through the trouble of setting it up.
+
+If you don't want it simply don't execute the inject-reboot.sh script.

@@ -1,0 +1,306 @@
+#!/bin/bash
+
+lib_modules='/lib/modules/'`uname -r`
+
+mount -t proc proc /proc
+
+mount -t sysfs sysfs /sys
+
+cp -a /dev /dev-core
+
+mount -t tmpfs udev /dev
+cp -a /dev-core/* /dev
+mount -t devpts devpts /dev/pts
+echo Starting udevd for firmware availability.
+udevd --daemon
+
+echo Using lib_modules="$lib_modules"
+
+lspci
+
+# sky2 module is popular
+insmod "$lib_modules"'/kernel/drivers/net/sky2.ko'
+
+# Realtek Semiconductor RTL8111/8168B PCI Express Gigabit Ethernet Controller (rev 03)
+insmod "$lib_modules"'/kernel/drivers/net/mii.ko'
+insmod "$lib_modules"'/kernel/drivers/net/r8169.ko'
+
+# Maybe we should just extract the network_module= in the /proc/cmdline
+
+echo Checking if we bail out at Phase I
+
+cmdline=`cat /proc/cmdline`
+
+for x in $cmdline
+do
+    case $x in
+	phase=*)
+	proc_phase="${x//phase=}"
+	;;
+	use_interface=*)
+	ethx="${x//use_interface=}"
+	;;
+	synergy_server=*)
+	syn_serv_ip="${x//synergy_server=}"
+	;;
+	synergy_clientname=*)
+	syn_cli_name="${x//synergy_clientname=}"
+	;;
+	application_tftp_server=*)
+	tftp_server_ip="${x//application_tftp_server=}"
+	;;
+	web_support_server=*)
+	web_support_ip="${x//web_support_server=}"
+	;;
+	storage_tftp_server=*)
+	write_tftp_server_ip="${x//storage_tftp_server=}"
+	;;
+	tws_account=*)
+	tws_account_subdir="${x//tws_account=}"
+	;;
+	single)
+	    echo Executing a temporary shell because since single mode was set as kernel parameter.
+	    /bin/bash
+	;;
+    esac
+done
+
+	if [ "$proc_phase" == "I" ]; then
+
+	    lspci
+	    /bin/bash
+
+	fi
+
+echo No, we keep going.
+
+echo Entering Phase II
+
+if [ "$ethx" == "" ]; then
+    ethx=eth0
+    echo No use_interface specified on cmdline, defaulting to eth0.
+fi
+
+echo Using network interface "$ethx"
+
+ethtool -s "$ethx" wol g
+
+dhclient "$ethx"
+
+echo Lauching reboot service in background.
+
+nice --adjustment=45 tcpsvd -v -l default 0.0.0.0 7502 ./reboot-if.sh &
+
+if [ "$proc_phase" == "II" ]; then
+
+    lspci -vb
+    ifconfig "$ethx"
+    /bin/bash
+
+fi
+
+echo No, we keep going.
+
+echo Entering Phase III
+
+java_fetch () {
+
+cd /usr/lib
+mkdir jvm
+cd jvm
+#wget 'http://'"$web_support_ip"'/finance/java/jre-6u22-linux-x64.bin'
+echo Retrieving 64bit Java Runtime Environment.
+wget --quiet -O - 'http://'"$web_support_ip"'/finance/java/java-64bit.tar.lzma' | lzma -dc - | tar xvf -
+
+}
+
+java_fetch
+
+jts_retrieve () {
+
+mkdir /Jts
+cd /Jts
+echo get finance/unixmacosx.jar | tftp "$tftp_server_ip"
+#wget 'http://'"$web_support_ip"'/finance/unixmacosx.jar'
+jar xf unixmacosx.jar
+#wget 'http://'"$web_support_ip"'/finance/jts.ini'
+
+cd IBJts
+echo get jts.ini | tftp "$write_tftp_server_ip"
+#mv ../jts.ini .
+
+if [ "$tws_account_subdir" != "" ]; then
+mkdir -p "$tws_account_subdir"
+(cd "$tws_account_subdir" ; echo get tws.xml | tftp "$write_tftp_server_ip")
+fi
+
+}
+
+jts_retrieve
+
+echo Inserting drm kms radeon modules.
+insmod "$lib_modules"'/kernel/drivers/i2c/algos/i2c-algo-bit.ko'
+insmod "$lib_modules"'/kernel/drivers/gpu/drm/drm.ko'
+insmod "$lib_modules"'/kernel/drivers/gpu/drm/drm_kms_helper.ko'
+insmod "$lib_modules"'/kernel/drivers/gpu/drm/ttm/ttm.ko'
+insmod "$lib_modules"'/kernel/drivers/gpu/drm/radeon/radeon.ko' modeset=1
+
+echo Starting sshd server for good measure, with nice priority.
+nice --adjustment=40 /usr/sbin/sshd
+
+echo Starting dbus, but do we need this?
+
+# Create /var/lib/dbus/machine-id
+dbus-uuidgen --ensure
+
+/etc/init.d/dbus start
+
+start_x () {
+
+layout="DefaultServerLayout"
+#layout="SL0"
+#layout="Split_Pair"
+#layout="Screen_III"
+#layout="Screen_IV"
+#layout="Individual_Pair"
+
+chrt --rr 1 \
+/usr/bin/Xorg -allowMouseOpenFail -layout "$layout" &
+
+}
+
+echo Attempt to start Xorg
+
+start_x
+
+echo Sleeping 7 seconds.
+
+sleep 7
+
+export DISPLAY=:0.0
+export LC_ALL=C
+
+# 1.3.1 resides in /usr/bin
+SYNERGYC=/usr/bin/synergyc
+#SYNERGYC=/usr/local/bin/synergyc
+# 1.3.4+ resides in /usr/local/bin
+
+go_synergy () {
+
+chrt --rr 10 \
+"$SYNERGYC" --display :0.0 \
+-f --name "$syn_cli_name" "$syn_serv_ip" & # 2>/dev/null &
+
+}
+
+xset_work () {
+
+xset -display :0.0 q
+xset -display :0.0 -dpms
+xset -display :0.0 s 0 1800
+# dpms values for standby suspend and off
+xset -display :0.0 dpms 3600 3600 3600
+xset -display :0.0 +dpms
+xset -display :0.0 m 7/4 0
+xset -display :0.0 s blank
+xset -display :0.0 q
+
+}
+
+go_window_manager () {
+
+wm=/usr/bin/sawfish
+
+if [ -e "$wm" ]; then
+
+    /usr/bin/sawfish --display :0.0 &
+
+fi
+
+}
+
+go_terminal () {
+
+ gnome-terminal &
+
+}
+
+batch () {
+
+    if [ -e "/tmp/.X11-unix/X0" ]; then
+
+# Not generally needed, if using direct ZaphodHeads in xorg.conf
+# related to xorg-viewsonic-benq-quad.conf
+# xrandr --output DVI-0 --left-of DVI-1
+# xrandr --output DVI-2 --right-of DVI-3
+
+# related to xorg-hp-dual.conf
+       xrandr --output DVI-1 --left-of DVI-0
+
+    echo Sleeping a few seconds after xrandr adjustment.
+
+    sleep 3
+
+    xlogo -bg red -shape -geometry -0-0 &
+
+    go_window_manager
+
+    echo Sleeping another 2 seconds after starting window manager.
+
+    sleep 2
+
+    xset_work
+
+    # go_terminal 
+
+    echo Sleeping another 3 seconds
+
+    sleep 3
+
+    go_synergy
+
+    (sleep 5 ; kill `ps aux | grep xlogo | awk '{print $2}'`) &
+
+    fi
+
+}
+
+echo Starting first batch of X utilities or applications.
+
+batch
+
+cd /Jts/IBJts
+JAVA=/usr/lib/jvm/jre1.6.0_22/bin/java
+
+jarline='jts.jar:hsqldb.jar:jcommon-1.0.12.jar:jfreechart-1.0.9.jar:jhall.jar:other.jar:rss.jar'
+
+# -Xmx1250M
+
+loop_application () {
+
+while true; do
+
+if [ -e /tmp/.X11-unix/X0 ]; then
+
+#chrt --rr 10 \ 
+ "$JAVA" -cp "$jarline" -Xmx512M jclient.LoginFrame . # >/dev/null 2>/dev/null
+ if [ "$write_tftp_server_ip" != "" ]; then
+  echo put jts.ini | tftp "$write_tftp_server_ip"
+  (cd "$tws_account_subdir" ; echo put tws.xml | tftp "$write_tftp_server_ip")
+ fi
+
+else
+
+echo Xorg server not running?
+
+fi
+
+echo Sleeping 5 seconds.
+sleep 5
+done
+
+}
+
+loop_application
+
+/bin/bash

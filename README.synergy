@@ -1,0 +1,4 @@
+
+Make sure to pass the synergy_server= and synergy_clientname= parameters for the kernel to boot with.
+
+The latter corresponds to the synergyc --name option and the former is just the IP or server-address for that binary.

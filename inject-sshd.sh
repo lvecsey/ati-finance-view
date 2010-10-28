@@ -14,7 +14,7 @@ chown root.root "$bd"/var/run/sshd
 echo Copying over authorized keys files.
 mkdir -p "$bd"/root/.ssh
 cp injections/authorized_keys2 "$bd"/root/.ssh
-chown root.root "$bd"/root/.ssh/authorized_keys2
+chown -R root.root "$bd"/root
 chmod 600 "$bd"/root/.ssh/authorized_keys2
 
 echo You need to go in and allow root for ssh access, in /etc/ssh/sshd_config

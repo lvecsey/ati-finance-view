@@ -14,6 +14,8 @@ fi
 
 (cd "$bd" ; find . | cpio --quiet -H newc -o | gzip -9 -n > "$output_img")
 
+echo Wrote to "$output_img"
+
 #chown tftpboot.tftpboot "$output_img"
 
 

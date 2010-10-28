@@ -1,0 +1,9 @@
+
+You want to use the xrandr approach for the ATI drivers since MergedFB is no longer in use for radeon.
+
+The concept is to just start Xorg and after a few seconds when things have stabilized, run the xrandr statement
+
+to rejuggle the screens.
+
+After the new configuration has stabilized, run synergyc.
+
