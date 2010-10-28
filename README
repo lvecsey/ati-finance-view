@@ -159,6 +159,13 @@ You can even scp in a newly editted xorg.conf, and launch Xorg to try again. (th
 
 --
 
+populate
+
+This script is just a list of injections you want to use. Mostly you use this when updating to another release
+(in the create script) and want to blast a new set of injections into it.
+
+--
+
 Finish by running the remake script to generate in actual initrd.img
 
 To run it, you need to configure that path and name of the output image.
