@@ -98,6 +98,7 @@ chroot "$bd" apt-get -y --force-yes install lzma fastjar
 chroot "$bd" apt-get -y --force-yes install sawfish
 chroot "$bd" apt-get -y --force-yes install ipsvd
 chroot "$bd" apt-get -y --force-yes install linux-firmware
+chroot "$bd" apt-get -y --force-yes install firefox
 
 chroot "$bd" apt-get -y --force-yes upgrade
 

@@ -269,7 +269,6 @@ echo Starting first batch of X utilities or applications.
 
 batch
 
-cd /Jts/IBJts
 JAVA=/usr/lib/jvm/jre1.6.0_22/bin/java
 
 jarline='jts.jar:hsqldb.jar:jcommon-1.0.12.jar:jfreechart-1.0.9.jar:jhall.jar:other.jar:rss.jar'
@@ -282,8 +281,10 @@ while true; do
 
 if [ -e /tmp/.X11-unix/X0 ]; then
 
-#chrt --rr 10 \ 
- "$JAVA" -cp "$jarline" -Xmx512M jclient.LoginFrame . # >/dev/null 2>/dev/null
+cd /Jts/IBJts
+
+chrt --rr 10 \
+ "$JAVA" -cp "$jarline" -Xmx512M -XX:MaxPermSize=128m jclient.LoginFrame . # >/dev/null 2>/dev/null
  if [ "$write_tftp_server_ip" != "" ]; then
   echo put jts.ini | tftp "$write_tftp_server_ip"
   (cd "$tws_account_subdir" ; echo put tws.xml | tftp "$write_tftp_server_ip")
