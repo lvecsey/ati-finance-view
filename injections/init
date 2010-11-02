@@ -164,7 +164,7 @@ layout="DefaultServerLayout"
 #layout="Screen_IV"
 #layout="Individual_Pair"
 
-chrt --rr 1 \
+chrt --rr 25 \
 /usr/bin/Xorg -allowMouseOpenFail -layout "$layout" &
 
 }
@@ -230,12 +230,9 @@ batch () {
     if [ -e "/tmp/.X11-unix/X0" ]; then
 
 # Not generally needed, if using direct ZaphodHeads in xorg.conf
-# related to xorg-viewsonic-benq-quad.conf
+# related to xorg-viewsonic-benq-quad-individualzaphods.conf
 # xrandr --output DVI-0 --left-of DVI-1
 # xrandr --output DVI-2 --right-of DVI-3
-
-# related to xorg-hp-dual.conf
-       xrandr --output DVI-1 --left-of DVI-0
 
     echo Sleeping a few seconds after xrandr adjustment.
 
@@ -283,7 +280,7 @@ if [ -e /tmp/.X11-unix/X0 ]; then
 
 cd /Jts/IBJts
 
-chrt --rr 10 \
+nice --adjustment=-10 \
  "$JAVA" -cp "$jarline" -Xmx512M -XX:MaxPermSize=128m jclient.LoginFrame . # >/dev/null 2>/dev/null
  if [ "$write_tftp_server_ip" != "" ]; then
   echo put jts.ini | tftp "$write_tftp_server_ip"

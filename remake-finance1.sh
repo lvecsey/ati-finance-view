@@ -12,7 +12,7 @@ else
     exit 1
 fi
 
-(cd "$bd" ; find . | cpio --quiet -H newc -o | gzip -9 -n > "$output_img")
+(cd "$bd" ; find . | cpio --quiet -H newc -o | lzma -9 > "$output_img")
 
 echo Wrote to "$output_img"
 
