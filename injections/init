@@ -81,6 +81,10 @@ if [ "$ethx" == "" ]; then
     echo No use_interface specified on cmdline, defaulting to eth0.
 fi
 
+echo Setting up localhost interface.
+
+ifconfig lo up
+
 echo Using network interface "$ethx"
 
 ethtool -s "$ethx" wol g
